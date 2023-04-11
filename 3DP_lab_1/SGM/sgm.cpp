@@ -158,12 +158,6 @@ namespace sgm {
   //TO COMPLETE: compute final costs per path
   void SGM::compute_path_cost(int direction_y, int direction_x, int cur_y, int cur_x, int cur_path)
   {
-      //use this variables if needed
-      unsigned long prev_cost;
-      unsigned long no_penalty_cost;
-      unsigned long best_prev_cost;
-      unsigned long penalty_cost;
-
       // if the processed pixel is the first:
       if (cur_y == pw_.north || cur_y == pw_.south || cur_x == pw_.east || cur_x == pw_.west)
       {
@@ -179,32 +173,17 @@ namespace sgm {
           unsigned long *min_cost = std::min_element(prev_costs, prev_costs + disparity_range_);
           int min_index = std::distance(prev_costs, min_cost);
 
-          best_prev_cost = *min_cost;
-
           for (int i = 0; i < disparity_range_; ++i)
           {
-              if (abs(i - min_index) == 1)
-              {
-                  penalty_cost = best_prev_cost + p1_;
-              }
-              else if (abs(i - min_index) > 1)
-              {
-                  penalty_cost = best_prev_cost + p2_;
-              }
-              else
-              {
-                  penalty_cost = best_prev_cost;
-              }
-
-              no_penalty_cost = cost_[cur_y][cur_x][i] + penalty_cost;
-              path_cost_[cur_path][cur_y][cur_x][i] = no_penalty_cost;
+              int penalty = (abs(i - min_index) > 1) ? p2_ : ((abs(i - min_index) == 1) ? p1_ : 0);
+              path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i] + *min_cost + penalty;
           }
       }
   }
+
     void SGM::aggregation()
     {
         //for all defined paths
-#pragma omp parallel for
         for (int cur_path = 0; cur_path < PATHS_PER_SCAN; ++cur_path)
         {
             int dir_x = paths_[cur_path].direction_x;
@@ -239,38 +218,27 @@ namespace sgm {
             }
 
             //for all pixels in the path
-            unsigned long *prev_costs, *min_cost;
-#pragma omp parallel for private(prev_costs, min_cost)
             for (int cur_y = start_y; cur_y != end_y; cur_y += step_y)
             {
                 for (int cur_x = start_x; cur_x != end_x; cur_x += step_x)
                 {
                     //compute the cost for the current pixel
-                    prev_costs = &path_cost_[cur_path][cur_y - dir_y][cur_x - dir_x][0];
-                    min_cost = std::min_element(prev_costs, prev_costs + disparity_range_);
-                    int min_index = std::distance(prev_costs, min_cost);
+                    unsigned long *cur_costs = &path_cost_[cur_path][cur_y][cur_x][0];
+                    unsigned long *min_cost = std::min_element(cur_costs, cur_costs + disparity_range_);
+                    int min_index = std::distance(cur_costs, min_cost);
 
                     for (int d = 0; d < disparity_range_; ++d)
                     {
-                        if (abs(d - min_index) == 1)
-                        {
-                            aggr_cost_[cur_y][cur_x][d] += *min_cost + p1_;
-                        }
-                        else if (abs(d - min_index) > 1)
-                        {
-                            aggr_cost_[cur_y][cur_x][d] += *min_cost + p2_;
-                        }
-                        else
-                        {
-                            aggr_cost_[cur_y][cur_x][d] += *min_cost;
-                        }
+                        int penalty = (abs(d - min_index) > 1) ? p2_ : ((abs(d - min_index) == 1) ? p1_ : 0);
+                        aggr_cost_[cur_y][cur_x][d] += *min_cost + penalty;
                     }
                 }
             }
         }
     }
-  void SGM::compute_disparity()
-  {
+
+    void SGM::compute_disparity()
+    {
       calculate_cost_hamming();
       aggregation();
       disp_ = Mat(Size(width_, height_), CV_8UC1, Scalar::all(0));
@@ -298,6 +266,7 @@ namespace sgm {
       }
 
   }
+
 
   float SGM::compute_mse(const cv::Mat &gt)
   {
