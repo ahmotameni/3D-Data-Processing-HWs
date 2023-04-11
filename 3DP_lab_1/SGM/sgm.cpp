@@ -158,118 +158,117 @@ namespace sgm {
   //TO COMPLETE: compute final costs per path
   void SGM::compute_path_cost(int direction_y, int direction_x, int cur_y, int cur_x, int cur_path)
   {
-    //use this variables if needed
-    unsigned long prev_cost;
-    unsigned long best_prev_cost;
-    unsigned long no_penalty_cost;
-    unsigned long penalty_cost;
-    unsigned long small_penalty_cost;
-    unsigned long big_penalty_cost;
+      //use this variables if needed
+      unsigned long prev_cost;
+      unsigned long no_penalty_cost;
+      unsigned long best_prev_cost;
+      unsigned long penalty_cost;
 
-    // if the processed pixel is the first:
-    if(cur_y == pw_.north || cur_y == pw_.south || cur_x == pw_.east || cur_x == pw_.west)
-    {
-        for(int i = 0; i < disparity_range_; ++i)
-        {
-            path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i];
-        }
-    }
+      // if the processed pixel is the first:
+      if (cur_y == pw_.north || cur_y == pw_.south || cur_x == pw_.east || cur_x == pw_.west)
+      {
+          for (int i = 0; i < disparity_range_; ++i)
+          {
+              path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i];
+          }
+      }
+      else
+      {
+          // find the minimum cost and its index in the previous path cost array
+          unsigned long *prev_costs = &path_cost_[cur_path][cur_y - direction_y][cur_x - direction_x][0];
+          unsigned long *min_cost = std::min_element(prev_costs, prev_costs + disparity_range_);
+          int min_index = std::distance(prev_costs, min_cost);
 
-    else
-    {
-        for (int i = 0; i < disparity_range_; ++i) {
-            prev_cost = path_cost_[cur_path][cur_y - direction_y][cur_x - direction_x][i];
-            best_prev_cost = prev_cost;
-            for (int j = 0; j < disparity_range_; ++j) {
-                if (abs(i - j) == 1) {
-                    penalty_cost = prev_cost + p1_;
-                } else if (abs(i - j) > 1) {
-                    penalty_cost = prev_cost + p2_;
-                } else {
-                    penalty_cost = prev_cost;
-                }
-                if (penalty_cost < best_prev_cost) {
-                    best_prev_cost = penalty_cost;
-                }
-            }
-            no_penalty_cost = cost_[cur_y][cur_x][i] + best_prev_cost;
-            path_cost_[cur_path][cur_y][cur_x][i] = no_penalty_cost;
-        }
+          best_prev_cost = *min_cost;
 
-    }
+          for (int i = 0; i < disparity_range_; ++i)
+          {
+              if (abs(i - min_index) == 1)
+              {
+                  penalty_cost = best_prev_cost + p1_;
+              }
+              else if (abs(i - min_index) > 1)
+              {
+                  penalty_cost = best_prev_cost + p2_;
+              }
+              else
+              {
+                  penalty_cost = best_prev_cost;
+              }
+
+              no_penalty_cost = cost_[cur_y][cur_x][i] + penalty_cost;
+              path_cost_[cur_path][cur_y][cur_x][i] = no_penalty_cost;
+          }
+      }
   }
-
-  //TO COMPLETE: aggregate the costs
-  void SGM::aggregation()
-  {
-    //for all defined paths
-    for(int cur_path = 0; cur_path < PATHS_PER_SCAN; ++cur_path)
+    void SGM::aggregation()
     {
+        //for all defined paths
+#pragma omp parallel for
+        for (int cur_path = 0; cur_path < PATHS_PER_SCAN; ++cur_path)
+        {
+            int dir_x = paths_[cur_path].direction_x;
+            int dir_y = paths_[cur_path].direction_y;
 
-      int dir_x = paths_[cur_path].direction_x;
-      int dir_y = paths_[cur_path].direction_y;
+            int start_x, start_y, end_x, end_y, step_x, step_y;
 
-      int start_x, start_y, end_x, end_y, step_x, step_y;
-
-        //set the start and end points of the path
-        if(dir_x == 1)
-        {
-            start_x = pw_.west;
-            end_x = pw_.east;
-            step_x = 1;
-        }
-        else
-        {
-            start_x = pw_.east;
-            end_x = pw_.west;
-            step_x = -1;
-        }
-        if(dir_y == 1)
-        {
-            start_y = pw_.north;
-            end_y = pw_.south;
-            step_y = 1;
-        }
-        else
-        {
-            start_y = pw_.south;
-            end_y = pw_.north;
-            step_y = -1;
-        }
-
-        //for all pixels in the path
-        for(int cur_y = start_y; cur_y != end_y; cur_y += step_y)
-        {
-            for(int cur_x = start_x; cur_x != end_x; cur_x += step_x)
+            //set the start and end points of the path
+            if (dir_x == 1)
             {
-                //compute the cost for the current pixel
-                compute_path_cost(dir_y, dir_x, cur_y, cur_x, cur_path);
+                start_x = pw_.west;
+                end_x = pw_.east;
+                step_x = 1;
             }
-        }
-
-    }
-
-    // aggregate the costs for all direction into the aggr_cost_ tensor
-
-    for(int row = 0; row < height_; ++row)
-    {
-        for(int col = 0; col < width_; ++col)
-        {
-            for(int d = 0; d < disparity_range_; ++d)
+            else
             {
-                aggr_cost_[row][col][d] = 0;
-                for(int cur_path = 0; cur_path < PATHS_PER_SCAN; ++cur_path)
+                start_x = pw_.east;
+                end_x = pw_.west;
+                step_x = -1;
+            }
+            if (dir_y == 1)
+            {
+                start_y = pw_.north;
+                end_y = pw_.south;
+                step_y = 1;
+            }
+            else
+            {
+                start_y = pw_.south;
+                end_y = pw_.north;
+                step_y = -1;
+            }
+
+            //for all pixels in the path
+            unsigned long *prev_costs, *min_cost;
+#pragma omp parallel for private(prev_costs, min_cost)
+            for (int cur_y = start_y; cur_y != end_y; cur_y += step_y)
+            {
+                for (int cur_x = start_x; cur_x != end_x; cur_x += step_x)
                 {
-                    aggr_cost_[row][col][d] += path_cost_[cur_path][row][col][d];
+                    //compute the cost for the current pixel
+                    prev_costs = &path_cost_[cur_path][cur_y - dir_y][cur_x - dir_x][0];
+                    min_cost = std::min_element(prev_costs, prev_costs + disparity_range_);
+                    int min_index = std::distance(prev_costs, min_cost);
+
+                    for (int d = 0; d < disparity_range_; ++d)
+                    {
+                        if (abs(d - min_index) == 1)
+                        {
+                            aggr_cost_[cur_y][cur_x][d] += *min_cost + p1_;
+                        }
+                        else if (abs(d - min_index) > 1)
+                        {
+                            aggr_cost_[cur_y][cur_x][d] += *min_cost + p2_;
+                        }
+                        else
+                        {
+                            aggr_cost_[cur_y][cur_x][d] += *min_cost;
+                        }
+                    }
                 }
             }
         }
     }
-
-
-
-  }
-
   void SGM::compute_disparity()
   {
       calculate_cost_hamming();
