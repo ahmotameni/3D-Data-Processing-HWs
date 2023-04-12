@@ -200,6 +200,7 @@ namespace sgm {
     }
 
     //TO COMPLETE: aggregate the costs
+
     void SGM::aggregation()
     {
         //for all defined paths
@@ -212,26 +213,74 @@ namespace sgm {
             int start_x, start_y, end_x, end_y, step_x, step_y;
 
             //set the start and end points of the path
-            if(dir_x == 1 & dir_y == 0)
+            if(dir_x == 1 && dir_y == 0)
             {
                 start_x = pw_.west;
                 end_x = pw_.east;
                 step_x = 1;
+                start_y = pw_.north;
+                end_y = pw_.south;
+                step_y = 0;
             }
-            else if (dir_x == -1 & dir_y == 0)
+            else if (dir_x == -1 && dir_y == 0)
             {
                 start_x = pw_.east;
                 end_x = pw_.west;
                 step_x = -1;
+                start_y = pw_.north;
+                end_y = pw_.south;
+                step_y = 0;
             }
-            if(dir_y == 1 & dir_x == 0)
+            else if(dir_y == 1 && dir_x == 0)
             {
+                start_x = pw_.west;
+                end_x = pw_.east;
+                step_x = 0;
                 start_y = pw_.north;
                 end_y = pw_.south;
                 step_y = 1;
             }
-            else if (dir_y == -1 & dir_x == 0)
+            else if (dir_y == -1 && dir_x == 0)
             {
+                start_x = pw_.west;
+                end_x = pw_.east;
+                step_x = 0;
+                start_y = pw_.south;
+                end_y = pw_.north;
+                step_y = -1;
+            }
+            else if(dir_x == 1 && dir_y == 1)
+            {
+                start_x = pw_.west;
+                end_x = pw_.east;
+                step_x = 1;
+                start_y = pw_.north;
+                end_y = pw_.south;
+                step_y = 1;
+            }
+            else if (dir_x == -1 && dir_y == 1)
+            {
+                start_x = pw_.east;
+                end_x = pw_.west;
+                step_x = -1;
+                start_y = pw_.north;
+                end_y = pw_.south;
+                step_y = 1;
+            }
+            else if(dir_x == 1 && dir_y == -1)
+            {
+                start_x = pw_.west;
+                end_x = pw_.east;
+                step_x = 1;
+                start_y = pw_.south;
+                end_y = pw_.north;
+                step_y = -1;
+            }
+            else if (dir_x == -1 && dir_y == -1)
+            {
+                start_x = pw_.east;
+                end_x = pw_.west;
+                step_x = -1;
                 start_y = pw_.south;
                 end_y = pw_.north;
                 step_y = -1;
@@ -246,8 +295,8 @@ namespace sgm {
                     compute_path_cost(dir_y, dir_x, cur_y, cur_x, cur_path);
                 }
             }
-
         }
+
 
         // aggregate the costs for all direction into the aggr_cost_ tensor
 
