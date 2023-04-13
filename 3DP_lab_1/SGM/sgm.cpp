@@ -207,6 +207,10 @@ namespace sgm {
         for(int cur_path = 0; cur_path < PATHS_PER_SCAN; ++cur_path)
         {
 
+            //print a counter
+            if(cur_path % 100 == 0)
+                cout << cur_path << " paths processed" << endl;
+
             int dir_x = paths_[cur_path].direction_x;
             int dir_y = paths_[cur_path].direction_y;
 
