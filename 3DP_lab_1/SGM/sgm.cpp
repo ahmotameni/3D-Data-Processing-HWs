@@ -208,8 +208,7 @@ namespace sgm {
         {
 
             //print a counter
-            if(cur_path % 100 == 0)
-                cout << cur_path << " paths processed" << endl;
+            cout << cur_path << " paths processed" << endl;
 
             int dir_x = paths_[cur_path].direction_x;
             int dir_y = paths_[cur_path].direction_y;
@@ -317,6 +316,13 @@ namespace sgm {
                     cout << "cur_x: " << cur_x << endl;
                     cout << "dir_y: " << dir_y << endl;
                     cout << "dir_x: " << dir_x << endl;
+                    cout << "step_y: " << step_y << endl;
+                    cout << "step_x: " << step_x << endl;
+                    cout << "start_y: " << start_y << endl;
+                    cout << "start_x: " << start_x << endl;
+                    cout << "end_y: " << end_y << endl;
+                    cout << "end_x: " << end_x << endl;
+
 
                     //compute the cost for the current pixel
                     compute_path_cost(dir_y, dir_x, cur_y, cur_x, cur_path);
