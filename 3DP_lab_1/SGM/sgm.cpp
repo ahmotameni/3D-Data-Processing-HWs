@@ -311,6 +311,13 @@ namespace sgm {
             {
                 for(int cur_x = start_x; cur_x != end_x; cur_x += step_x)
                 {
+                    //print variables for debugging
+                    cout << "cur_path: " << cur_path << endl;
+                    cout << "cur_y: " << cur_y << endl;
+                    cout << "cur_x: " << cur_x << endl;
+                    cout << "dir_y: " << dir_y << endl;
+                    cout << "dir_x: " << dir_x << endl;
+
                     //compute the cost for the current pixel
                     compute_path_cost(dir_y, dir_x, cur_y, cur_x, cur_path);
                 }
