@@ -289,6 +289,22 @@ namespace sgm {
                 end_y = pw_.north;
                 step_y = -1;
             }
+            else
+            {
+                //print directions and error
+                cout << "dir_x: " << dir_x << endl;
+                cout << "dir_y: " << dir_y << endl;
+                cout << "cur_path: " << cur_path << endl;
+                cout << "start_x: " << start_x << endl;
+                cout << "start_y: " << start_y << endl;
+                cout << "end_x: " << end_x << endl;
+                cout << "end_y: " << end_y << endl;
+                cout << "step_x: " << step_x << endl;
+                cout << "step_y: " << step_y << endl;
+
+                cout << "ERROR: unknown path direction" << endl;
+                exit(1);
+            }
 
             //for all pixels in the path
             for(int cur_y = start_y; cur_y != end_y; cur_y += step_y)
