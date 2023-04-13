@@ -222,7 +222,7 @@ namespace sgm {
                 end_x = pw_.east;
                 step_x = 1;
                 start_y = pw_.north;
-                end_y = pw_.south;
+                end_y = pw_.north;
                 step_y = 0;
             }
             else if (dir_x == -1 && dir_y == 0)
@@ -231,13 +231,13 @@ namespace sgm {
                 end_x = pw_.west;
                 step_x = -1;
                 start_y = pw_.north;
-                end_y = pw_.south;
+                end_y = pw_.north;
                 step_y = 0;
             }
             else if(dir_y == 1 && dir_x == 0)
             {
                 start_x = pw_.west;
-                end_x = pw_.east;
+                end_x = pw_.west;
                 step_x = 0;
                 start_y = pw_.north;
                 end_y = pw_.south;
@@ -246,7 +246,7 @@ namespace sgm {
             else if (dir_y == -1 && dir_x == 0)
             {
                 start_x = pw_.west;
-                end_x = pw_.east;
+                end_x = pw_.west;
                 step_x = 0;
                 start_y = pw_.south;
                 end_y = pw_.north;
@@ -308,8 +308,12 @@ namespace sgm {
             //for all pixels in the path
             for(int cur_y = start_y; cur_y != end_y; cur_y += step_y)
             {
+                if (step_y == 0)
+                    continue;
                 for(int cur_x = start_x; cur_x != end_x; cur_x += step_x)
                 {
+                    if(step_x == 0)
+                        continue;
                     //print variables for debugging
                     cout << "cur_path: " << cur_path << endl;
                     cout << "cur_y: " << cur_y << endl;
