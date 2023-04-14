@@ -170,11 +170,7 @@ namespace sgm {
                     }
                 }
                 path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i] + best_prev_cost;
-
-//                no_penalty_cost = cost_[cur_y][cur_x][i] + best_prev_cost;
-//                path_cost_[cur_path][cur_y][cur_x][i] = no_penalty_cost;
             }
-
         }
     }
 
@@ -187,6 +183,7 @@ namespace sgm {
             int dir_x = paths_[cur_path].direction_x;
             int dir_y = paths_[cur_path].direction_y;
             int start_x, start_y, end_x, end_y, step_x, step_y;
+            int next_dim_x, next_dim_y;
 
             //TO DO: initialize the variables start_x, start_y, end_x, end_y, step_x, step_y with the right values for 8 directions
 
