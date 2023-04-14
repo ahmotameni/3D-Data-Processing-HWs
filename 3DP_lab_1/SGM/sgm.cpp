@@ -192,7 +192,7 @@ namespace sgm {
                 start_y = pw_.north;
                 end_x = pw_.east;
                 end_y = pw_.south;
-                step_x = 1;
+                step_x = 0;
                 step_y = 1;
             } else if (dir_x == 1 && dir_y == 0) {
                 start_x = pw_.west;
@@ -200,7 +200,7 @@ namespace sgm {
                 end_x = pw_.east;
                 end_y = pw_.south;
                 step_x = 1;
-                step_y = 1;
+                step_y = 0;
             } else if (dir_x == 1 && dir_y == 1) {
                 start_x = pw_.west;
                 start_y = pw_.south;
@@ -228,13 +228,13 @@ namespace sgm {
                 end_x = pw_.west;
                 end_y = pw_.south;
                 step_x = -1;
-                step_y = 1;
+                step_y = 0;
             } else if (dir_x == 0 && dir_y == -1) {
                 start_x = pw_.east;
                 start_y = pw_.south;
                 end_x = pw_.west;
                 end_y = pw_.north;
-                step_x = -1;
+                step_x = 0;
                 step_y = -1;
             } else if (dir_x == -1 && dir_y == -1) {
                 start_x = pw_.east;
@@ -251,7 +251,11 @@ namespace sgm {
             for (int cur_y = start_y; cur_y != end_y; cur_y += step_y) {
                 for (int cur_x = start_x; cur_x != end_x; cur_x += step_x) {
                     compute_path_cost(dir_y, dir_x, cur_y, cur_x, cur_path);
+                    if (step_x == 0)
+                        break;
                 }
+                if (step_y == 0)
+                    break;
             }
 
 
