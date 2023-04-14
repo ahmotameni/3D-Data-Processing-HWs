@@ -200,71 +200,56 @@ namespace sgm {
             //When the path is diagonal, we iterate from top left to bottom right or vice versa.
 
 
-            if (dir_x == 0 && dir_y == 1){
+            if (dir_x == 0 && dir_y == 1) {
                 start_x = pw_.west;
                 start_y = pw_.north;
                 end_x = pw_.east;
                 end_y = pw_.south;
                 step_x = 1;
                 step_y = 1;
-            }
-
-            // complete the rest of the directions
-            if (dir_x == 1 && dir_y == 0){
+            } else if (dir_x == 1 && dir_y == 0) {
                 start_x = pw_.west;
                 start_y = pw_.north;
                 end_x = pw_.east;
                 end_y = pw_.south;
                 step_x = 1;
                 step_y = 1;
-            }
-
-            if (dir_x == 1 && dir_y == 1){
-                start_x = pw_.west;
-                start_y = pw_.north;
-                end_x = pw_.east;
-                end_y = pw_.south;
-                step_x = 1;
-                step_y = 1;
-            }
-
-            if (dir_x == 1 && dir_y == -1){
+            } else if (dir_x == 1 && dir_y == 1) {
                 start_x = pw_.west;
                 start_y = pw_.south;
                 end_x = pw_.east;
                 end_y = pw_.north;
                 step_x = 1;
                 step_y = -1;
-            }
-
-            if (dir_x == -1 && dir_y == 1){
+            } else if (dir_x == 1 && dir_y == -1) {
+                start_x = pw_.west;
+                start_y = pw_.north;
+                end_x = pw_.east;
+                end_y = pw_.south;
+                step_x = 1;
+                step_y = 1;
+            } else if (dir_x == -1 && dir_y == 1) {
                 start_x = pw_.east;
                 start_y = pw_.north;
                 end_x = pw_.west;
                 end_y = pw_.south;
                 step_x = -1;
                 step_y = 1;
-            }
-
-            if (dir_x == -1 && dir_y == 0){
+            } else if (dir_x == -1 && dir_y == 0) {
                 start_x = pw_.east;
                 start_y = pw_.north;
                 end_x = pw_.west;
                 end_y = pw_.south;
                 step_x = -1;
                 step_y = 1;
-            }
-
-            if (dir_x == 0 && dir_y == -1){
+            } else if (dir_x == 0 && dir_y == -1) {
                 start_x = pw_.east;
                 start_y = pw_.south;
                 end_x = pw_.west;
                 end_y = pw_.north;
                 step_x = -1;
                 step_y = -1;
-            }
-
-            if (dir_x == -1 && dir_y == -1){
+            } else if (dir_x == -1 && dir_y == -1) {
                 start_x = pw_.east;
                 start_y = pw_.south;
                 end_x = pw_.west;
