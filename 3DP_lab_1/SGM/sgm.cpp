@@ -145,8 +145,8 @@ namespace sgm {
         unsigned long best_prev_cost;
         unsigned long no_penalty_cost;
         unsigned long penalty_cost;
-        unsigned long small_penalty_cost = p1_;
-        unsigned long big_penalty_cost = p2_;
+        unsigned long small_penalty_cost;
+        unsigned long big_penalty_cost;
 
         // if the processed pixel is the first:
         if (cur_y == pw_.north || cur_y == pw_.south || cur_x == pw_.east || cur_x == pw_.west) {
@@ -159,11 +159,18 @@ namespace sgm {
                 best_prev_cost = prev_cost;
                 for (int j = 0; j < disparity_range_; ++j) {
                     if (abs(i - j) == 1) {
-                        penalty_cost = prev_cost + small_penalty_cost;
+                        small_penalty_cost = prev_cost + p1_;
                     } else if (abs(i - j) > 1) {
-                        penalty_cost = prev_cost + big_penalty_cost;
-                    } else {
+                        big_penalty_cost = prev_cost + p2_;
+                    } else if (abs(i - j) == 0) {
                         penalty_cost = prev_cost;
+                    }
+                    // best_prev_cost = min(small_penalty_cost, big_penalty_cost, penalty_cost);
+                    if (small_penalty_cost < best_prev_cost) {
+                        best_prev_cost = small_penalty_cost;
+                    }
+                    if (big_penalty_cost < best_prev_cost) {
+                        best_prev_cost = big_penalty_cost;
                     }
                     if (penalty_cost < best_prev_cost) {
                         best_prev_cost = penalty_cost;
