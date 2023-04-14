@@ -193,57 +193,69 @@ namespace sgm {
             int next_dim_x, next_dim_y;
 
             //TO DO: initialize the variables start_x, start_y, end_x, end_y, step_x, step_y with the right values for 8 directions
+            //The important fact here is that we have to iterate over the pixels in the horizontal, vertical and two diagonal paths
+            //in the same order. This is why we have to define the start and end points of the iteration and the step size.
+            //The order of the iteration is important for the dynamic programming algorithm.
+            //So when the path is horizontal, we iterate from left to right, when the path is vertical, we iterate from top to bottom or vice versa
+            //When the path is diagonal, we iterate from top left to bottom right or vice versa.
 
-            if (dir_x == 0 && dir_y == 1) {
+
+            if (dir_x == 0 && dir_y == 1){
                 start_x = pw_.west;
                 start_y = pw_.north;
                 end_x = pw_.east;
                 end_y = pw_.south;
                 step_x = 1;
                 step_y = 1;
-            } else if (dir_x == 1 && dir_y == 0) {
+            }
+
+            // complete the rest of the directions
+            if (dir_x == 1 && dir_y == 0){
                 start_x = pw_.west;
                 start_y = pw_.north;
                 end_x = pw_.east;
                 end_y = pw_.south;
                 step_x = 1;
                 step_y = 1;
-            } else if (dir_x == 1 && dir_y == 1) {
+            }
+
+            if (dir_x == 1 && dir_y == 1){
+                start_x = pw_.west;
+                start_y = pw_.north;
+                end_x = pw_.east;
+                end_y = pw_.south;
+                step_x = 1;
+                step_y = 1;
+            }
+
+            if (dir_x == 1 && dir_y == -1){
                 start_x = pw_.west;
                 start_y = pw_.south;
                 end_x = pw_.east;
                 end_y = pw_.north;
                 step_x = 1;
                 step_y = -1;
-            } else if (dir_x == 1 && dir_y == -1) {
-                start_x = pw_.west;
-                start_y = pw_.north;
-                end_x = pw_.east;
-                end_y = pw_.south;
-                step_x = 1;
-                step_y = 1;
-            } else if (dir_x == -1 && dir_y == 1) {
+            }
+
+            if (dir_x == -1 && dir_y == 1){
                 start_x = pw_.east;
                 start_y = pw_.north;
                 end_x = pw_.west;
                 end_y = pw_.south;
                 step_x = -1;
                 step_y = 1;
-            } else if (dir_x == -1 && dir_y == 0) {
+            }
+
+            if (dir_x == -1 && dir_y == 0){
                 start_x = pw_.east;
                 start_y = pw_.north;
                 end_x = pw_.west;
                 end_y = pw_.south;
                 step_x = -1;
-                step_y = -1;
-            } else if (dir_x == 0 && dir_y == -1) {
-                start_x = pw_.east;
-                start_y = pw_.south;
-                end_x = pw_.west;
-                end_y = pw_.north;
-                step_x = -1;
-                step_y = -1;
-            } else if (dir_x == -1 && dir_y == -1) {
+                step_y = 1;
+            }
+
+            if (dir_x == 0 && dir_y == -1){
                 start_x = pw_.east;
                 start_y = pw_.south;
                 end_x = pw_.west;
@@ -252,6 +264,14 @@ namespace sgm {
                 step_y = -1;
             }
 
+            if (dir_x == -1 && dir_y == -1){
+                start_x = pw_.east;
+                start_y = pw_.south;
+                end_x = pw_.west;
+                end_y = pw_.north;
+                step_x = -1;
+                step_y = -1;
+            }
 
             //for each pixel we have to call compute_path_cost.
 
