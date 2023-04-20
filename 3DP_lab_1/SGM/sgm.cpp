@@ -151,21 +151,26 @@ namespace sgm {
         // if the processed pixel is the first:
         if (cur_y == pw_.north || cur_y == pw_.south || cur_x == pw_.east || cur_x == pw_.west) {
             for (int i = 0; i < disparity_range_; ++i) {
+                // set the initial cost for the first pixel in the path
                 path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i];
             }
         } else {
             for (int i = 0; i < disparity_range_; ++i) {
+                // get the previous cost of the path
                 prev_cost = path_cost_[cur_path][cur_y - direction_y][cur_x - direction_x][i];
                 best_prev_cost = prev_cost;
                 for (int j = 0; j < disparity_range_; ++j) {
                     if (abs(i - j) == 1) {
+                        // apply small penalty for disparity difference of 1
                         small_penalty_cost = prev_cost + p1_;
                     } else if (abs(i - j) > 1) {
+                        // apply big penalty for disparity difference greater than 1
                         big_penalty_cost = prev_cost + p2_;
                     } else if (abs(i - j) == 0) {
+                        // apply no penalty for equal disparity
                         penalty_cost = prev_cost;
                     }
-                    // best_prev_cost = min(small_penalty_cost, big_penalty_cost, penalty_cost);
+                    // find the minimum cost among the penalty costs
                     if (small_penalty_cost < best_prev_cost) {
                         best_prev_cost = small_penalty_cost;
                     }
@@ -176,6 +181,7 @@ namespace sgm {
                         best_prev_cost = penalty_cost;
                     }
                 }
+                // set the final cost for the current pixel in the path
                 path_cost_[cur_path][cur_y][cur_x][i] = cost_[cur_y][cur_x][i] + best_prev_cost;
             }
         }
