@@ -39,15 +39,37 @@ void FeatureMatcher::extractFeatures()
     // Extract also the color (i.e., the cv::Vec3b information) of each feature, and store
     // it into feats_colors_[i] vector
     /////////////////////////////////////////////////////////////////////////////////////////
-    // Extract salient points + descriptors from i-th image, and store them into features_[i] and descriptors_[i] vector
-    orb_detector->detectAndCompute(img, cv::Mat(), features_[i], descriptors_[i]);
+      cv::Mat imgGray;
+      cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
 
-    // Extract the color (i.e., the cv::Vec3b information) of each feature, and store it into feats_colors_[i] vector
-    for (int j = 0; j < features_[i].size(); j++)
-    {
-      cv::Point2f point = features_[i][j].pt;
-      feats_colors_[i].push_back(img.at<cv::Vec3b>(point.y, point.x));
-    }
+      std::vector<cv::KeyPoint> keypoints;
+      cv::Mat descriptors;
+
+      // Choose the feature extractor method (SIFT, ORB, or SURF)
+      cv::Ptr<cv::Feature2D> detector = cv::SIFT::create();
+
+      // Detect and compute keypoints and descriptors
+      detector->detectAndCompute(imgGray, cv::Mat(), keypoints, descriptors);
+
+      // Add keypoints and descriptors to their respective vectors
+      features_.insert(features_.begin() + i, keypoints);
+      descriptors_.insert(descriptors_.begin() + i, descriptors);
+
+      std::cout << "\n size: " << keypoints.size() << " , " << descriptors.size();
+
+      // Extract the color (cv::Vec3b) of each feature and store it into feats_colors_[i] vector
+      std::vector<cv::Vec3b> feature_colors;
+
+      for (int row = 0; row < img.rows; row++)
+      {
+          for (int col = 0; col < img.cols; col++)
+          {
+              feature_colors.push_back(img.at<cv::Vec3b>(row, col));
+          }
+      }
+
+      // Add feature colors to the feats_colors_ vector
+      feats_colors_.insert(feats_colors_.begin() + i, feature_colors);
     /////////////////////////////////////////////////////////////////////////////////////////
   }
 }
@@ -81,25 +103,27 @@ void FeatureMatcher::exhaustiveMatching()
         std::vector<cv::Point2f> points1, points2;
         for (int k = 0; k < matches.size(); k++)
         {
-          points1.push_back(features_[i][matches[k].queryIdx].pt);
-          points2.push_back(features_[j][matches[k].trainIdx].pt);
+            points1.push_back(features_[i][matches[k].queryIdx].pt);
+            points2.push_back(features_[j][matches[k].trainIdx].pt);
         }
 
+        // Perform geometric validation using both Essential and Homography matrices
         cv::Mat mask;
         cv::Mat E = cv::findEssentialMat(points1, points2, new_intrinsics_matrix_, cv::RANSAC, 0.999, 1.0, mask);
         cv::Mat H = cv::findHomography(points1, points2, cv::RANSAC, 1.0, mask);
 
         for (int k = 0; k < mask.rows; k++)
         {
-          if (mask.at<uchar>(k, 0) == 1)
-          {
-            inlier_matches.push_back(matches[k]);
-          }
+            if (mask.at<uchar>(k, 0) == 1)
+            {
+                inlier_matches.push_back(matches[k]);
+            }
         }
 
+        // If the number of geometrically verified matches is more than a threshold (e.g., 5), set the matches
         if (inlier_matches.size() > 5)
         {
-          setMatches(i, j, inlier_matches);
+            setMatches(i, j, inlier_matches);
         }
         /////////////////////////////////////////////////////////////////////////////////////////
     }
