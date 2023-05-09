@@ -25,8 +25,8 @@ Examples
 
 For the provided datasets, set the focal lenght scale to 1.1, e.g.:
 
-./matcher datasets/3dp_cam.yml datasets/images_1 data1.txt 1.1
-./matcher datasets/3dp_cam.yml datasets/images_2 data2.txt 1.1
+./matcher ../datasets/3dp_cam.yml ../datasets/images_1 ../results/data1.txt 1.1
+./matcher ../datasets/3dp_cam.yml ../datasets/images_2 ../results/data2.txt 1.1
 
-./basic_sfm data1.txt cloud1.ply
-./basic_sfm data2.txt cloud2.ply
+./basic_sfm ../results/data1.txt ../results/cloud1.ply
+./basic_sfm ../results/data2.txt ../results/cloud2.ply
