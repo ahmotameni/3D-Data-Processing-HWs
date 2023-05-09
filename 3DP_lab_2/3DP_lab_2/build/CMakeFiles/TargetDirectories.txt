@@ -1,5 +1,0 @@
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP_lab_2/3DP_lab_2/build/CMakeFiles/rebuild_cache.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP_lab_2/3DP_lab_2/build/CMakeFiles/edit_cache.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP_lab_2/3DP_lab_2/build/CMakeFiles/basic_sfm.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP_lab_2/3DP_lab_2/build/CMakeFiles/matcher.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP_lab_2/3DP_lab_2/build/CMakeFiles/sfm.dir
