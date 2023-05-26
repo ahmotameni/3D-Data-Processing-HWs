@@ -46,8 +46,8 @@ void FeatureMatcher::extractFeatures()
       cv::Mat descriptors;
 
       // Choose the feature extractor method (SIFT, ORB, or SURF)
-      cv::Ptr<cv::Feature2D> detector = cv::SIFT::create();
-
+      cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(10000, 1.2, 8);
+      
       // Detect and compute keypoints and descriptors
       detector->detectAndCompute(imgGray, cv::Mat(), keypoints, descriptors);
 

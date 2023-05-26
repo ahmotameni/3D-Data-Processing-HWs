@@ -460,7 +460,7 @@ void BasicSfM::solve() {
         // Store the transformation into init_r_mat and  init_t_vec; defined above and set the seed_found flag to true
         // Otherwise, test a different [ref_cam_pose_idx, new_cam_pose_idx] pair (while( !seed_found ) loop)
         // The dummy condition here:
-        if (true) seed_found = true;
+        // if (true) seed_found = true;
         // should be replaced with the criteria described above
         /////////////////////////////////////////////////////////////////////////////////////////
         // Extract both Essential matrix E and Homography matrix H.
@@ -475,7 +475,7 @@ void BasicSfM::solve() {
         if (num_inliers_E > num_inliers_H) {
             // Recover the initial rigid body transformation between ref_pose_idx and new_pose_idx
             // from the Essential matrix and set the seed_found flag to true.
-            cv::recoverPose(E, points0, points1, intrinsics_matrix, init_r_mat, init_t, inlier_mask_E);
+            int num_inliers_recoverPose = cv::recoverPose(E, points0, points1, intrinsics_matrix, init_r_mat, init_t_vec, inlier_mask_E);
             seed_found = true;
         }
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -489,6 +489,13 @@ void BasicSfM::solve() {
     // == 0 ---> The corresponding pose or point position has not yet been estimated
     // == -1 ---> The corresponding pose or point position has been rejected due to e.g. outliers, etc...
     cam_pose_optim_iter_[ref_cam_pose_idx] = cam_pose_optim_iter_[new_cam_pose_idx] = 1;
+
+
+    //debug
+    if (init_r_mat.empty() || init_r_mat.type() != CV_64F) {
+    std::cout << "Invalid init_r_mat" << std::endl;
+}
+
 
     //Initialize the first RT wrt the reference position
     cv::Mat r_vec;
@@ -747,14 +754,15 @@ void BasicSfM::bundleAdjustmentIter(int new_cam_idx) {
                 // while the point position blocks have size (point_block_size_) of 3 elements.
                 //////////////////////////////////////////////////////////////////////////////////
                 // Create a residual block using the ReprojectionError cost function
-                ceres::CostFunction *cost_function = ReprojectionError::Create(observed_x[i_obs], observed_y[i_obs]);
+                double *observation = observations_.data() + (i_obs * 2);
+                ceres::CostFunction *cost_function = ReprojectionError::Create(observation[0], observation[1]);
 
                 // Define a Cauchy loss function with the given parameters
                 ceres::LossFunction *loss_function = new ceres::CauchyLoss(2 * max_reproj_err_);
 
                 // Get pointers to the camera and point parameter blocks
                 double *camera_params = &parameters_[camera_block_size_ * cam_pose_index_[i_obs]];
-                double *point_params = &parameters_[camera_block_size_ * num_cameras_ + point_block_size_ * point_index_[i_obs]];
+                double *point_params = &parameters_[camera_block_size_ * num_cam_poses_ + point_block_size_ * point_index_[i_obs]];
 
                 // Add the residual block to the Ceres problem
                 problem.AddResidualBlock(cost_function, loss_function, camera_params, point_params);
