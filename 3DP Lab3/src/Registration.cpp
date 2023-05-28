@@ -110,7 +110,7 @@ Registration::execute_icp_registration(double threshold, int max_iteration, doub
         if (mode == "svd") {
             transformation_ = get_svd_icp_transformation(source_indices, target_indices);
         } else if (mode == "lm") {
-            transformation_ = get_lm_icp_transformation(source_indices, target_indices);
+            transformation_ = get_lm_icp_registration(source_indices, target_indices);
         } else {
             std::cout << "Unknown mode. Use either 'svd' or 'lm'." << std::endl;
             return;

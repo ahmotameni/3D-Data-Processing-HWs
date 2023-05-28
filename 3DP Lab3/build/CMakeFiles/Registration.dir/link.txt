@@ -1,0 +1,2 @@
+/usr/bin/ar qc libRegistration.a CMakeFiles/Registration.dir/src/Registration.cpp.o
+/usr/bin/ranlib libRegistration.a
