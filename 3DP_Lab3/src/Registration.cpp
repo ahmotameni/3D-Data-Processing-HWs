@@ -152,7 +152,13 @@ std::tuple<std::vector<size_t>, std::vector<size_t>, double> Registration::find_
         }
     }
 
-    double rmse = std::sqrt(mse / source_indices.size());
+    double rmse = 0.0;
+    if (!source_indices.empty()) {
+        rmse = std::sqrt(mse / source_indices.size());
+    } else {
+        // Set RMSE to a specific error value
+        rmse = -1.0;
+    }
 
     return {source_indices, target_indices, rmse};
 
@@ -162,7 +168,7 @@ Eigen::Matrix4d
 Registration::get_svd_icp_transformation(std::vector<size_t> source_indices, std::vector<size_t> target_indices) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Find point clouds centroids and subtract them.
-    //Use SVD (Eigen::JacobiSVD<Eigen::MatrixXd>) to find best rotation and translation matrix.
+    //Use SVD (Eigen::JacobiSVD<Eigen::MatrixXd>) to find the best rotation and translation matrix.
     //Use source_indices and target_indices to extract point to compute the 3x3 matrix to be decomposed.
     //Remember to manage the special reflection case.
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +176,10 @@ Registration::get_svd_icp_transformation(std::vector<size_t> source_indices, std
     Eigen::Vector3d source_centroid(0, 0, 0), target_centroid(0, 0, 0);
 
     size_t num_points = source_indices.size();
+
+    if (num_points == 0) {
+        throw std::runtime_error("The source_indices vector is empty.");
+    }
 
     for (size_t i = 0; i < num_points; ++i) {
         source_centroid += source_.points_[source_indices[i]];
@@ -187,7 +197,7 @@ Registration::get_svd_icp_transformation(std::vector<size_t> source_indices, std
 
     W = S.transpose() * T;
 
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(W, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    Eigen::JacobiSVD <Eigen::MatrixXd> svd(W, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
     U = svd.matrixU();
     V = svd.matrixV();
@@ -210,7 +220,7 @@ Registration::get_svd_icp_transformation(std::vector<size_t> source_indices, std
 Eigen::Matrix4d
 Registration::get_lm_icp_registration(std::vector<size_t> source_indices, std::vector<size_t> target_indices) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //Use LM (Ceres) to find best rotation and translation matrix.
+    //Use LM (Ceres) to find the best rotation and translation matrix.
     //Remember to convert the euler angles in a rotation matrix, store it coupled with the final translation on:
     //Eigen::Matrix4d transformation.
     //The first three elements of std::vector<double> transformation_arr represent the euler angles, the last ones
@@ -224,8 +234,13 @@ Registration::get_lm_icp_registration(std::vector<size_t> source_indices, std::v
     std::vector<double> transformation_arr(6, 0.0); // 3 for rotation (angle-axis), 3 for translation
     size_t num_points = source_indices.size();
 
+    if (num_points == 0) {
+        throw std::runtime_error("The source_indices vector is empty.");
+    }
+
     for (size_t i = 0; i < num_points; ++i) {
-        ceres::CostFunction* cost_function = PointDistance::Create(target_.points_[target_indices[i]], source_.points_[source_indices[i]]);
+        ceres::CostFunction *cost_function = PointDistance::Create(target_.points_[target_indices[i]],
+                                                                   source_.points_[source_indices[i]]);
         problem.AddResidualBlock(cost_function, nullptr, transformation_arr.data(), transformation_arr.data() + 3);
     }
 
