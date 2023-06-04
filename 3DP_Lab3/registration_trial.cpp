@@ -18,3 +18,4 @@ int main(int argc, char *argv[]) {
   registration.save_merged_cloud("merged_registered_cloud.ply");
   return 0;
 }
+// ./registration ../data/bunny/source.ply ../data/bunny/target.ply lm
