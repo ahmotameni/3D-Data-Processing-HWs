@@ -1,4 +1,0 @@
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP Lab3/build/CMakeFiles/Registration.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP Lab3/build/CMakeFiles/registration.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP Lab3/build/CMakeFiles/edit_cache.dir
-/home/tdp/Desktop/3D-Data-Processing-HWs/3DP Lab3/build/CMakeFiles/rebuild_cache.dir
